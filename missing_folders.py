@@ -1,6 +1,6 @@
 import os
 import sys
-from compare_scans import load_rows
+from compare_xls import load_rows
 
 
 def main(xls_path, output_path="result.txt"):
@@ -9,7 +9,7 @@ def main(xls_path, output_path="result.txt"):
     for row in rows[1:]:
         if len(row) < 8:
             continue
-        h_val = row[7]
+        h_val = row[8]
         if h_val and h_val != '0':
             req = f"{row[0]}-{row[1]}-{row[2]}"
             if not os.path.isdir(req):
