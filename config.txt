@@ -1,0 +1,3 @@
+email=xeothy@gmail.com
+password=LfJ-jir-rmG-gG8
+savepath=Z:\gaso
