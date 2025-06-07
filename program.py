@@ -1,6 +1,13 @@
 import os
 import csv
-from PIL import Image, ImageDraw
+import sys
+import subprocess
+
+try:
+    from PIL import Image, ImageDraw
+except ImportError:
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pillow"])
+    from PIL import Image, ImageDraw
 import zipfile
 
 
