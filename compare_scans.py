@@ -45,23 +45,39 @@ def build_dict(path):
         idx_req = header.index('Реквизиты')
     except ValueError:
         raise ValueError('Required columns not found')
+
     data = {}
     for row in rows[1:]:
         if len(row) <= max(idx_scan, idx_req):
             continue
         key = row[idx_req]
-        val = row[idx_scan]
-        data[key] = val
-    return data
+        # Store the whole row so we can output every column later
+        data[key] = row
+
+    # Return mapping and the index of the scan column for further checks
+    return data, idx_scan
 
 def main(old_file, new_file, output_file):
-    old = build_dict(old_file)
-    new = build_dict(new_file)
+    # Build dictionaries for old and new files. Each dictionary maps the
+    # "Реквизиты" value to the entire row. The returned index points to the
+    # "Отсканировано" column within the row.
+    old_data, old_scan_idx = build_dict(old_file)
+    new_data, new_scan_idx = build_dict(new_file)
+
     with open(output_file, 'w', encoding='utf-8') as out:
-        for req, scan_val in new.items():
-            old_val = old.get(req, '')
-            if (not old_val or old_val == '0') and scan_val and scan_val != '0':
-                out.write(req + '\n')
+        for req, new_row in new_data.items():
+            # Determine the scanning value in the new file
+            new_scan = new_row[new_scan_idx] if len(new_row) > new_scan_idx else ''
+
+            old_row = old_data.get(req)
+            old_scan = ''
+            if old_row and len(old_row) > old_scan_idx:
+                old_scan = old_row[old_scan_idx]
+
+            # If the case was not scanned in the old file but has a value in the
+            # new file, output the entire row separated by tabs.
+            if (not old_scan or old_scan == '0') and new_scan and new_scan != '0':
+                out.write('\t'.join(new_row) + '\n')
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
